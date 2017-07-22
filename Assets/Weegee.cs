@@ -31,8 +31,10 @@ public class Weegee : MonoBehaviour {
 
     private void Start()
     {
+      high =  PlayerPrefs.GetInt("highscore", high);
+        highScore.text = "Highscore: " + high;
         setScore();
-       highScore.text = "Highscore: " + high;
+    
     }
 
 
@@ -177,14 +179,10 @@ public class Weegee : MonoBehaviour {
     //reset
     public void Reset()
     {
-        //saves highscore
+       
        
         if (levelCheck > 3 && gameObject.GetComponent<Rigidbody2D>().position.y <= -2) {
-            if (blockNum > high)
-            {
-                highScore.text = "Highscore: " + (blockNum - 2);
-                high = blockNum-2;
-            }
+           
             while (levelCheck > 0)
             {
                 Destroy(GameObject.Find("Block #" + (levelCheck)));
@@ -202,6 +200,11 @@ public class Weegee : MonoBehaviour {
     public void setScore()
     {
         countText.text = "Score: " +(blockNum-2).ToString();
-
+        if (blockNum > high)
+        {
+            highScore.text = "Highscore: " + (blockNum - 2);
+            high = blockNum - 2;
+            PlayerPrefs.SetInt("highscore", high);
+        }
     }
 }
