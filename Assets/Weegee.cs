@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.UI;
 
 public class Weegee : MonoBehaviour {
 
+
+    
     public bool facingRight = true;
     public int playerSpeed = 10;
     public int playerJumpPower = 30;
@@ -18,14 +21,24 @@ public class Weegee : MonoBehaviour {
     public int blockNum = 1;
     //checks to make sure level doesnt happen twice 
    public int levelCheck = 0;
+    //lastX is position of previous block so next block is within jumping distance
     float lastX = 0;
-    //test garbage
-    public float test;
+    //Stores text for score and high score
+    public Text countText,highScore;
+    int high = 0;
+  
+
+
+    private void Start()
+    {
+        setScore();
+       highScore.text = "Highscore: " + high;
+    }
 
 
     // Update is called once per frame
     void Update () {
-        test = gameObject.GetComponent<Rigidbody2D>().position.y;
+       
         int lastLevel = level;
         level = (int) Math.Floor(gameObject.GetComponent<Rigidbody2D>().position.y)/4 +2;
 
@@ -123,7 +136,7 @@ public class Weegee : MonoBehaviour {
 
         float randX;
 
-        //randX = random.Next(-9, 9); 
+      
         do
         {
             randX = random.Next((int)(lastX - 7), (int)(lastX + 7));
@@ -140,8 +153,8 @@ public class Weegee : MonoBehaviour {
          if(level >= 6)
         Destroy( GameObject.Find("Block #" + (level-5)));
 
-        //}
-        lastX = randX;
+       lastX = randX;
+        setScore();
     }
 
     public void Jump()
@@ -150,16 +163,8 @@ public class Weegee : MonoBehaviour {
         {
             GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.GetComponent<Rigidbody2D>().velocity.x, playerJumpPower);
             jumpCount++;
-        }
-      
-        /*
-        if (jumpCount < 2)
-        {
-            GetComponent<Rigidbody2D>().AddForce(Vector2.up * playerJumpPower);
-            jumpCount++;
-        }
-        */
-        
+        }  
+               
     }
 
     void FlipPlayer()
@@ -172,7 +177,14 @@ public class Weegee : MonoBehaviour {
     //reset
     public void Reset()
     {
+        //saves highscore
+       
         if (levelCheck > 3 && gameObject.GetComponent<Rigidbody2D>().position.y <= -2) {
+            if (blockNum > high)
+            {
+                highScore.text = "Highscore: " + (blockNum - 2);
+                high = blockNum-2;
+            }
             while (levelCheck > 0)
             {
                 Destroy(GameObject.Find("Block #" + (levelCheck)));
@@ -183,5 +195,13 @@ public class Weegee : MonoBehaviour {
             level = 0;
         blockNum = 1;
     }
+    }
+    
+
+    //sets text for score
+    public void setScore()
+    {
+        countText.text = "Score: " +(blockNum-2).ToString();
+
     }
 }
