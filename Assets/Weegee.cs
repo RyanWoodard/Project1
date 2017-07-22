@@ -16,15 +16,29 @@ public class Weegee : MonoBehaviour {
     public GameObject cam;
     public int level = 0;
     public int blockNum = 1;
+    //checks to make sure level doesnt happen twice 
+   public int levelCheck = 0;
+    float lastX = 0;
+    //test garbage
+    public float test;
 
 
     // Update is called once per frame
     void Update () {
+        test = gameObject.GetComponent<Rigidbody2D>().position.y;
         int lastLevel = level;
-        level = (int) Math.Floor(gameObject.GetComponent<Rigidbody2D>().position.y)/4;
+        level = (int) Math.Floor(gameObject.GetComponent<Rigidbody2D>().position.y)/4 +2;
+
         //checks if it goes up a level. doesjnt check going down then going back up
-        if(level > lastLevel)
-            spawnBlock();
+        if (level > lastLevel)
+        {
+
+            if (level > levelCheck)
+            {
+                levelCheck = level;
+                spawnBlock();
+            }
+        }
         DoubleJumpCheck();
         CameraMove();
       
@@ -35,7 +49,9 @@ public class Weegee : MonoBehaviour {
         if (Input.GetButtonUp("LeftKeyboard") || Input.GetButtonUp("RightKeyboard")) Stop();
         //Movement is the only thing requiring updates
         MovePlayer();
-	}
+        //resets when player dies
+        Reset();
+    }
 
     public void MovePlayer()
     {
@@ -104,16 +120,28 @@ public class Weegee : MonoBehaviour {
             GameObject oldBlock = GameObject.Find("mc_dirt (15)");
             GameObject mainBlock = GameObject.Find("mc_dirt");
             System.Random random = new System.Random();
-            float randX = random.Next(-9, 9);
-            float randY = random.Next(-1, 1);
-            Vector3 oldBlockVector = new Vector3(randX, level*4 +randY, 0);
+
+        float randX;
+
+        //randX = random.Next(-9, 9); 
+        do
+        {
+            randX = random.Next((int)(lastX - 7), (int)(lastX + 7));
+           
+        } while (randX > 9 || randX < -9);
+
+        
+        float randY = random.Next(-1, 0);
+   
+            Vector3 oldBlockVector = new Vector3(randX, level * 4 + randY, 0);
             GameObject block = (GameObject)Instantiate(oldBlock, oldBlockVector, Quaternion.identity, mainBlock.transform);
             block.name = "Block #" + blockNum;
             blockNum++;
-          //  if(level >= 5)
-              // Destroy( GameObject.Find("Block #" + level));
+         if(level >= 6)
+        Destroy( GameObject.Find("Block #" + (level-5)));
 
         //}
+        lastX = randX;
     }
 
     public void Jump()
@@ -140,5 +168,20 @@ public class Weegee : MonoBehaviour {
         Vector2 localScale = gameObject.transform.localScale;
         localScale.x *= -1;
         transform.localScale = localScale;
+    }
+    //reset
+    public void Reset()
+    {
+        if (levelCheck > 3 && gameObject.GetComponent<Rigidbody2D>().position.y <= -2) {
+            while (levelCheck > 0)
+            {
+                Destroy(GameObject.Find("Block #" + (levelCheck)));
+                levelCheck--;
+            }
+            levelCheck = 0;
+            
+            level = 0;
+        blockNum = 1;
+    }
     }
 }
